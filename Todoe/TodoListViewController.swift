@@ -12,7 +12,7 @@ class TodoListViewController: UITableViewController {
 
     var itemArray = ["first", "second", "third"]
     
-    var defaults = UserDefaults()
+    var defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
