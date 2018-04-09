@@ -56,7 +56,6 @@ class CategoryViewController: UITableViewController {
     // MARK: - TableView Manipulation Methods
     
     func saveCategory() {
-        let encoder = PropertyListEncoder()
         
         do {
             try context.save()
@@ -79,7 +78,8 @@ class CategoryViewController: UITableViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        var destCV = segue.destination as! TodoListViewController
+        
+        let destCV = segue.destination as! TodoListViewController
         
         if let indexPath = tableView.indexPathForSelectedRow {
             destCV.selectedCategory = categoryArray[indexPath.row]
