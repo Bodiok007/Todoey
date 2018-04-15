@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
 
     let realm = try! Realm()
     var categories: Results<Category>?
@@ -18,6 +19,8 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
         
         loadItems()
+        
+        tableView.rowHeight = 80.0
     }
     
     //MARL: - Add New Categories
@@ -34,6 +37,7 @@ class CategoryViewController: UITableViewController {
             
             let newCategory = Category()
             newCategory.name = textField.text!
+            newCategory.color = UIColor.randomFlat.hexValue()
             
             self.saveCategory(newCategory)
         }
@@ -71,6 +75,20 @@ class CategoryViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    // MARK: - Delete Data From Swipe
+    
+    override func updateModel(at indexPath: IndexPath) {
+        if let categoryForDeletion = self.categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(categoryForDeletion)
+                }
+            } catch {
+                print("Error \(error)")
+            }
+        }
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         let destCV = segue.destination as! TodoListViewController
@@ -93,11 +111,21 @@ extension CategoryViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoCategoryCell", for: indexPath)
         
-        let category = categories?[indexPath.row]
-        cell.textLabel?.text = category?.name ?? "No Categories Added"
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
 
+        if let category = categories?[indexPath.row] {
+            
+            guard let categoryColor = UIColor(hexString: category.color) else {
+                fatalError()
+            }
+            
+            cell.textLabel?.text = category.name
+            cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+            
+            cell.backgroundColor = categoryColor
+        }
+        
         return cell
     }
     
@@ -105,3 +133,5 @@ extension CategoryViewController {
         return categories?.count ?? 1
     }
 }
+
+// MARK: - Swipe Cell Delegate Methods
